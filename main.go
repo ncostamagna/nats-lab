@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
-	"encoding/json"
+	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/nats-io/nats.go"
 )
 
@@ -14,7 +16,11 @@ type Message struct {
 
 func main() {
 	// Connect to the NATS server in Minikube
-	nc, err := nats.Connect("nats://127.0.0.1:4222")  // Default Minikube IP
+
+	godotenv.Load()
+	nc, err := nats.Connect(os.Getenv("NATS_URL"))
+	log.Println("NATS_URL: ", os.Getenv("NATS_URL"))
+
 	if err != nil {
 		log.Fatal(err)
 	}
