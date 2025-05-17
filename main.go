@@ -2,9 +2,15 @@ package main
 
 import (
 	"log"
+	"net/http"
+	"encoding/json"
 
 	"github.com/nats-io/nats.go"
 )
+
+type Message struct {
+	Content string `json:"content"`
+}
 
 func main() {
 	// Connect to the NATS server in Minikube
@@ -30,8 +36,33 @@ func main() {
 
 	log.Println("Connected to NATS server. Press Ctrl+C to exit.")
 	
-	// Keep the program running
-	select {}
+	http.HandleFunc("/send", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		var message Message
+		if err := json.NewDecoder(r.Body).Decode(&message); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		// Publish message to NATS
+		if err := PublishMessage(nc, "hello.world", message.Content); err != nil {
+			http.Error(w, "Failed to publish message", http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Message sent successfully"))
+	})
+
+	// Start HTTP server
+	log.Println("Starting HTTP server on :8080")
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // PublishMessage publishes a message to a NATS subject
