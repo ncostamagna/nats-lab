@@ -1,8 +1,9 @@
-version: '3.8'
-
 services:
   nats:
     image: nats:latest
     ports:
       - "4222:4222"
-    container_name: nats 
+    command: ["-js", "-c", "/nats/nats-server.conf"]
+    volumes:
+      - ./nats-config/nats-server.conf:/nats/nats-server.conf
+      - ./nats-config/nsc/jwt:/nsc/jwt:ro
