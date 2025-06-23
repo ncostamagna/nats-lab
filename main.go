@@ -18,8 +18,14 @@ func main() {
 	// Connect to the NATS server in Minikube
 
 	godotenv.Load()
-	nc, err := nats.Connect(os.Getenv("NATS_URL"))
-	log.Println("NATS_URL: ", os.Getenv("NATS_URL"))
+	natsURL := os.Getenv("NATS_URL")
+	credsPath := os.Getenv("NATS_CREDS_PATH")
+
+	log.Println("NATS_URL: ", natsURL)
+	log.Println("NATS_CREDS_PATH: ", credsPath)
+
+	nc, err := nats.Connect(natsURL, nats.UserCredentials(credsPath))
+	log.Println("NATS_URL: ", natsURL)
 
 	if err != nil {
 		log.Fatal(err)
