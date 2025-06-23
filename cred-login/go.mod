@@ -1,4 +1,4 @@
-module github.com/ncostamagna/nats-lab
+module github.com/ncostamagna/nats-lab/cred-login
 
 go 1.24.0
 
